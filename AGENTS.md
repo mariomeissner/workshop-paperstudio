@@ -12,13 +12,13 @@
 
 ## Build, Test, and Development Commands
 
-- Install: `pnpm i` (enforced via only-allow).
-- Lint: `pnpm lint` (Next + TypeScript rules).
-- Build: `pnpm build` → `postbuild` runs `next-sitemap`.
+- Install: `npm i` (enforced via only-allow).
+- Lint: `npm lint` (Next + TypeScript rules).
+- Build: `npm build` → `postbuild` runs `next-sitemap`.
 - Prisma (SQLite local):
-  - Generate: `pnpm prisma generate`
-  - Reset schema: `pnpm db:reset`
-  - Seed demo data: `pnpm db:seed`
+  - Generate: `npm run prisma generate`
+  - Reset schema: `npm run db:reset`
+  - Seed demo data: `npm run db:seed`
 
 ## Coding Style & Naming Conventions
 
@@ -29,7 +29,7 @@
 
 ## Testing Guidelines
 
-- No test runner is configured. Validate changes by running `pnpm lint`, `pnpm build`, and exercising affected routes locally.
+- No test runner is configured. Validate changes by running `npm run lint`, `npm run build`, and exercising affected routes locally.
 - If adding tests, prefer Playwright for e2e or Vitest/Jest for unit tests; place under `src/**/__tests__` and mirror file paths.
 
 ## Commit & Pull Request Guidelines
