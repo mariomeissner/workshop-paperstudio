@@ -14,7 +14,7 @@
 
 - Install: `npm i` (enforced via only-allow).
 - Lint: `npm lint` (Next + TypeScript rules).
-- Build: `npm build` → `postbuild` runs `next-sitemap`.
+- Build: `npm build`
 - Prisma (SQLite local):
   - Generate: `npm run prisma generate`
   - Reset schema: `npm run db:reset`
