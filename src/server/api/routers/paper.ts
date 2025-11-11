@@ -35,12 +35,18 @@ export const paperRouter = createTRPCRouter({
   search: publicProcedure
     .input(z.object({ query: z.string() }))
     .query(async ({ ctx, input }) => {
+      const trimmedQuery = input.query.trim();
+
+      if (!trimmedQuery) {
+        return { papers: [] };
+      }
+
       return {
         papers: await ctx.prisma.paper.findMany({
           where: {
             OR: [
-              { title: { contains: input.query, mode: 'insensitive' } },
-              { abstract: { contains: input.query, mode: 'insensitive' } },
+              { title: { contains: trimmedQuery } },
+              { abstract: { contains: trimmedQuery } },
             ],
           },
           take: 10,
