@@ -1,3 +1,5 @@
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
 
 /**
@@ -45,6 +47,16 @@ const processEnv = {
   DEMO_PASSWORD: process.env.DEMO_PASSWORD,
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
 };
+
+const resolveRelativeFileUrl = (value) => {
+  if (typeof value !== 'string') return value;
+  if (!value.startsWith('file:./')) return value;
+  const relativeTarget = value.replace(/^file:\.\//, '');
+  const absolutePath = path.resolve(process.cwd(), relativeTarget);
+  return pathToFileURL(absolutePath).href;
+};
+
+processEnv.DATABASE_URL = resolveRelativeFileUrl(processEnv.DATABASE_URL);
 
 // Don't touch the part below
 // --------------------------
