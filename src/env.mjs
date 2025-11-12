@@ -48,6 +48,11 @@ const processEnv = {
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
 };
 
+/**
+ * Expands `file:./` URLs so Prisma can resolve SQLite files from any cwd.
+ * @param {string | undefined} value
+ * @returns {string | undefined}
+ */
 const resolveRelativeFileUrl = (value) => {
   if (typeof value !== 'string') return value;
   if (!value.startsWith('file:./')) return value;
