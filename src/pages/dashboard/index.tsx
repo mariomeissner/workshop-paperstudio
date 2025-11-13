@@ -1,5 +1,5 @@
 import { Group, Stack, Title } from '@mantine/core';
-import type { Paper } from '@prisma/client';
+import type { Paper } from '~/types/models';
 import CenteredLoader from '~/components/centered-loader';
 import { api } from '~/utils/api';
 

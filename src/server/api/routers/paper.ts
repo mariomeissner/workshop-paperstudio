@@ -11,11 +11,7 @@ export const paperRouter = createTRPCRouter({
     .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
       return {
-        paper: await ctx.prisma.paper.findUnique({
-          where: {
-            id: input.id,
-          },
-        }),
+        paper: await ctx.db.paper.getById(input.id),
       };
     }),
 
@@ -23,12 +19,7 @@ export const paperRouter = createTRPCRouter({
     .input(z.object({ take: z.number() }))
     .query(async ({ ctx, input }) => {
       return {
-        papers: await ctx.prisma.paper.findMany({
-          orderBy: {
-            updateDate: 'desc',
-          },
-          take: input.take,
-        }),
+        papers: await ctx.db.paper.getTopRecent(input.take),
       };
     }),
 
@@ -42,13 +33,9 @@ export const paperRouter = createTRPCRouter({
       }
 
       return {
-        papers: await ctx.prisma.paper.findMany({
-          where: {
-            OR: [
-              { title: { contains: trimmedQuery } },
-              { abstract: { contains: trimmedQuery } },
-            ],
-          },
+        papers: await ctx.db.paper.search({
+          query: trimmedQuery,
+          fields: ['title', 'abstract'],
           take: 10,
         }),
       };
@@ -58,19 +45,12 @@ export const paperRouter = createTRPCRouter({
   getUserTagsOnPaper: protectedProcedure
     .input(z.object({ userId: z.string(), paperId: z.number() }))
     .query(async ({ ctx, input }) => {
-      const tagsOnPaper = await ctx.prisma.tagOnPaper.findMany({
-        where: {
-          paperId: input.paperId,
-          tag: {
-            userId: input.userId,
-          },
-        },
-        select: {
-          tag: true,
-        },
-      });
+      const relations = await ctx.db.tags.getUserTagsOnPaper(
+        input.userId,
+        input.paperId,
+      );
       return {
-        tags: tagsOnPaper.map((tagOnPaper) => tagOnPaper.tag),
+        tags: relations.map((relation) => relation.tag),
       };
     }),
 
@@ -85,23 +65,14 @@ export const paperRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       // Confirm that the tag is owned by the user
-      const tag = await ctx.prisma.tag.findUnique({
-        where: {
-          id: input.tagId,
-        },
-      });
+      const tag = await ctx.db.tags.getById(input.tagId);
       if (!tag || tag.userId !== input.userId || tag.name !== input.name) {
         throw new Error('No valid tag found');
       }
-      const createdTag = await ctx.prisma.tagOnPaper.create({
-        data: {
-          paperId: input.paperId,
-          tagId: input.tagId,
-        },
-        select: {
-          tag: true,
-        },
-      });
+      const createdTag = await ctx.db.tags.attachToPaper(
+        input.tagId,
+        input.paperId,
+      );
       return {
         tag: createdTag.tag,
       };
@@ -116,15 +87,12 @@ export const paperRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      const count = await ctx.db.tags.removeManyFromPaper(
+        input.paperId,
+        input.tagIds,
+      );
       return {
-        tags: await ctx.prisma.tagOnPaper.deleteMany({
-          where: {
-            paperId: input.paperId,
-            tagId: {
-              in: input.tagIds,
-            },
-          },
-        }),
+        tags: { count },
       };
     }),
 
@@ -138,15 +106,12 @@ export const paperRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      const count = await ctx.db.tags.removeFromPaper(
+        input.tagId,
+        input.paperId,
+      );
       return {
-        tags: await ctx.prisma.tagOnPaper.delete({
-          where: {
-            tagId_paperId: {
-              tagId: input.tagId,
-              paperId: input.paperId,
-            },
-          },
-        }),
+        tags: { count },
       };
     }),
 
@@ -159,22 +124,15 @@ export const paperRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      const tag = await ctx.db.tags.create({
+        userId: input.userId,
+        name: input.name,
+      });
+      if (input.paperId) {
+        await ctx.db.tags.attachToPaper(tag.id, input.paperId);
+      }
       return {
-        tag: await ctx.prisma.tag.create({
-          data: {
-            name: input.name,
-            userId: input.userId,
-
-            // create TagOnPaper if paperId is provided
-            ...(input.paperId && {
-              TagOnPaper: {
-                create: {
-                  paperId: input.paperId,
-                },
-              },
-            }),
-          },
-        }),
+        tag,
       };
     }),
 });

@@ -1,5 +1,3 @@
-import path from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
 
 /**
@@ -7,7 +5,6 @@ import { z } from 'zod';
  * built with invalid env vars.
  */
 const server = z.object({
-  DATABASE_URL: z.string().min(1),
   NODE_ENV: z.enum(['development', 'test', 'production']),
   NEXTAUTH_SECRET:
     process.env.NODE_ENV === 'production'
@@ -40,28 +37,12 @@ const client = z.object({
  * @type {Record<keyof z.infer<typeof server> | keyof z.infer<typeof client>, string | undefined>}
  */
 const processEnv = {
-  DATABASE_URL: process.env.DATABASE_URL,
   NODE_ENV: process.env.NODE_ENV,
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
   NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   DEMO_PASSWORD: process.env.DEMO_PASSWORD,
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
 };
-
-/**
- * Expands `file:./` URLs so Prisma can resolve SQLite files from any cwd.
- * @param {string | undefined} value
- * @returns {string | undefined}
- */
-const resolveRelativeFileUrl = (value) => {
-  if (typeof value !== 'string') return value;
-  if (!value.startsWith('file:./')) return value;
-  const relativeTarget = value.replace(/^file:\.\//, '');
-  const absolutePath = path.resolve(process.cwd(), relativeTarget);
-  return pathToFileURL(absolutePath).href;
-};
-
-processEnv.DATABASE_URL = resolveRelativeFileUrl(processEnv.DATABASE_URL);
 
 // Don't touch the part below
 // --------------------------

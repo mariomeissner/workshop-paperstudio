@@ -1,5 +1,5 @@
 import { type NextApiRequest, type NextApiResponse } from 'next';
-import { prisma } from '~/server/db';
+import { demoDb } from '~/server/data/demo-db';
 
 const PAGE_SIZE = 10;
 
@@ -40,23 +40,11 @@ const search = async (req: NextApiRequest, res: NextApiResponse) => {
     return;
   }
 
-  // Build OR filters based on selected fields
-  const orFilters = [] as Record<string, unknown>[];
-  if (fieldsList.includes('title')) orFilters.push({ title: { contains: q } });
-  if (fieldsList.includes('abstract'))
-    orFilters.push({ abstract: { contains: q } });
-  if (fieldsList.includes('authors'))
-    orFilters.push({ authors: { contains: q } });
-  if (fieldsList.includes('arxivId'))
-    orFilters.push({ arxivId: { contains: q } });
-
-  const where = orFilters.length ? { OR: orFilters } : undefined;
-
   const [total, results] = await Promise.all([
-    prisma.paper.count({ where }),
-    prisma.paper.findMany({
-      where,
-      orderBy: { updateDate: 'desc' },
+    demoDb.paper.count({ query: q, fields: fieldsList }),
+    demoDb.paper.search({
+      query: q,
+      fields: fieldsList,
       skip: (p - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
     }),
@@ -75,7 +63,7 @@ const search = async (req: NextApiRequest, res: NextApiResponse) => {
       title: r.title || '',
       abstract: r.abstract || '',
       authors: r.authors || '',
-      updateDate: r.updateDate ? r.updateDate.toISOString() : '',
+      updateDate: r.updateDate ?? '',
     };
     const h: { title?: string[]; abstract?: string[]; authors?: string[] } = {};
     if (doHighlight) {

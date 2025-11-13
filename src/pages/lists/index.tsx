@@ -10,7 +10,7 @@ import {
   Text,
   Title,
 } from '@mantine/core';
-import { type List } from '@prisma/client';
+import { type List } from '~/types/models';
 import {
   IconCalendarEvent,
   IconCopy,

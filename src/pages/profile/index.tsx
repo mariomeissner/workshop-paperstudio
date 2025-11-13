@@ -16,7 +16,7 @@ import { useRouter } from 'next/router';
 import React from 'react';
 import PageContainer from '~/components/page-container';
 import { getServerAuthSession } from '~/server/auth';
-import { prisma } from '~/server/db';
+import { demoDb } from '~/server/data/demo-db';
 
 type Props = {
   userName: string;
@@ -90,15 +90,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
       },
     };
   }
-  const user = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      name: true,
-      email: true,
-    },
-  });
+  const user = await demoDb.users.getById(session.user.id);
 
   if (!user) {
     return {

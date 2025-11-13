@@ -28,7 +28,7 @@ import { type Session } from 'next-auth';
 import superjson from 'superjson';
 import { ZodError } from 'zod';
 import { getServerAuthSession } from '~/server/auth';
-import { prisma } from '~/server/db';
+import { demoDb } from '~/server/data/demo-db';
 
 type CreateContextOptions = {
   session: Session | null;
@@ -47,7 +47,7 @@ type CreateContextOptions = {
 const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     session: opts.session,
-    prisma,
+    db: demoDb,
   };
 };
 

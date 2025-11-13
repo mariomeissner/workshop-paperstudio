@@ -5,11 +5,7 @@ export const userRouter = createTRPCRouter({
   getUserTags: protectedProcedure
     .input(z.object({ userId: z.string() }))
     .query(async ({ ctx, input }) => {
-      const tags = await ctx.prisma.tag.findMany({
-        where: {
-          userId: input.userId,
-        },
-      });
+      const tags = await ctx.db.tags.getByUser(input.userId);
       return {
         tags,
       };

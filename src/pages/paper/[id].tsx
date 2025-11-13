@@ -12,7 +12,7 @@ import {
   Title,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { type Paper } from '@prisma/client';
+import { type Paper } from '~/types/models';
 import {
   IconBook,
   IconChevronDown,
@@ -32,7 +32,7 @@ import superjson from 'superjson';
 import ChatBox from '~/components/chat-box/chat-box';
 import LibraryButton from '~/components/library-button';
 import { useGlobalContext } from '~/context/GlobalContext';
-import { prisma } from '~/server/db';
+import { demoDb } from '~/server/data/demo-db';
 import { api } from '~/utils/api';
 import { useAddToListMutation } from '~/utils/mutations/listMutations';
 import {
@@ -389,11 +389,7 @@ export async function getServerSideProps({
     throw new Error('Missing params');
   }
 
-  const paper = await prisma.paper.findUnique({
-    where: {
-      arxivId: params.id,
-    },
-  });
+  const paper = await demoDb.paper.getByArxivId(params.id);
 
   if (!paper) {
     console.log(`Paper ${params.id} not found`);

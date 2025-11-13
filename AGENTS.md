@@ -6,7 +6,7 @@
 - `src/components/` Reusable React components (PascalCase filenames), colocate small styles.
 - `src/server/` Server-side code (tRPC/NextAuth, utilities) only imports from `src/**`.
 - `src/utils/`, `src/context/`, `src/scripts/` Helpers, context providers, one-off tasks.
-- `prisma/` Prisma schema, seeds, and data (`schema.prisma`, `seed.ts`, `seed_data.csv`).
+- `src/server/data/` In-memory demo data + helpers used instead of a database.
 - `public/` Static assets; served at the site root.
 - Env validation lives in `src/env.mjs` (strict Zod schema).
 
@@ -14,8 +14,7 @@
 
 - **Next.js**: 13.x (React 18.2.0)
 - **tRPC**: 10.x (client, server, react-query)
-- **Prisma**: 4.x (client + CLI)
-- **NextAuth.js**: 4.x (with Prisma adapter)
+- **NextAuth.js**: 4.x (credentials / JWT strategy)
 - **Mantine UI**: 6.x (core, hooks, next)
 - **React Query**: 4.x (@tanstack/react-query)
 - **AI SDK**: 4.x (with OpenAI integration)
@@ -28,10 +27,6 @@
 - Install: `npm i` (enforced via only-allow).
 - Lint: `npm lint` (Next + TypeScript rules).
 - Build: `npm build`
-- Prisma (SQLite local):
-  - Generate: `npm run prisma generate`
-  - Reset schema: `npm run db:reset`
-  - Seed demo data: `npm run db:seed`
 
 ## Coding Style & Naming Conventions
 
